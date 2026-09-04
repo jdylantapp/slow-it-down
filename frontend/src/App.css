@@ -3,11 +3,16 @@
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: rgb(49, 49, 49);
+}
+
+p, h1{
+  color: rgb(211, 210, 210);
 }
 
 .navbar {
   height: 100px;
-  box-shadow: 0 1px 10px 1px rgb(148, 147, 147);
+  box-shadow: 0 1px 10px 1px rgb(22, 22, 22);
   align-content: center;
   margin-bottom: 50px;
 }
@@ -39,7 +44,7 @@ input[type="file"] {
   box-sizing: border-box;
 
   color: white;
-  background-color: #0d84d4;
+  background-color: #3a96d3;
   font-size: large;
   font-weight: bold;
   border-radius: 30px;
@@ -53,4 +58,106 @@ input[type="file"] {
   cursor: pointer;
   background-color: #0965a3;
   transition: background-color 0.1s ease-in;
+}
+
+.audio-player-container {
+  width: min(100% - 2rem, 800px);
+  margin-inline: auto;
+}
+
+.slow-audio-player {
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Player Background Color */
+.rmap-player-provider.slow-audio-player {
+  --rm-audio-player-interface-container: #83838400;
+  --rm-audio-player-track-current-time: #3a96d3;
+  --rm-audio-player-track-duration: #3a96d3;
+
+  /* Unplayed waveform */
+  --rm-audio-player-waveform-background: #77778c;
+
+  /* Played portion of the waveform */
+  --rm-audio-player-waveform-bar: #3a96d3;
+
+  /* Vertical playback-position line */
+  --rm-audio-player-waveform-cursor: #ffffff;
+}
+
+.slow-audio-player button{
+  width: 44px;
+  height: 44px;
+  margin-top: 15px;
+  color: #3a96d3;
+}
+
+.slow-audio-player .styled-btn.rmap-play-btn {
+  width: 56px;
+  height: 56px;
+}
+
+.effect-label{
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: rgb(211, 210, 210);
+}
+
+.speed-slider {
+  --slider-color: #3a96d3;
+  --slider-track-color: #d8d8d8;
+
+  width: 80%;
+  height: 44px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Chrome, Safari and Edge */
+
+.speed-slider::-webkit-slider-runnable-track {
+  height: 10px;
+  background: var(--slider-track-color);
+  border-radius: 999px;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+  margin-top: -9px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: var(--slider-color);
+  border: 3px solid white;
+  border-radius: 50%;
+}
+
+/* Firefox */
+
+.speed-slider::-moz-range-track {
+  height: 10px;
+  background: var(--slider-track-color);
+  border-radius: 999px;
+}
+
+.speed-slider::-moz-range-progress {
+  height: 10px;
+  background: var(--slider-color);
+  border-radius: 999px;
+}
+
+.speed-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+
+  background: var(--slider-color);
+  border: 3px solid white;
+  border-radius: 50%;
 }

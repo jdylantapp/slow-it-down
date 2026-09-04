@@ -1,18 +1,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ModernAudioPlayer, {useAudioPlayerPlayback} from 'react-modern-audio-player'
 
-const playerUI = {
+const stackedPlayerUI = {
     all: false,
-    playList: false,
-    repeatType: false,
-    artwork: false,
-    playbackRate: false,
-    volumeSlider: false,
-    trackInfo: false,
-    playButton: true,
     trackTime: true,
+    progress: 'waveform',
+    playButton: true,
     prevNnext: true,
-    progress: 'bar'
+  
+    trackInfo: false,
+    artwork: false,
+    volume: false,
+    volumeSlider: false,
+    repeatType: false,
+    playList: false,
+    playbackRate: false,
+}
+  
+  const stackedPlacement = {
+    interface: {
+      templateArea: {
+        trackTimeCurrent: 'row1-1',
+        trackTimeDuration: 'row1-3',
+  
+        progress: 'row2-2',
+  
+        playButton: 'row3-2',
+      },
+    },
 }
 
 const PlayerControlsBridge = ({ controlsRef }) => {
@@ -38,6 +53,7 @@ const SpeedControl = ({speed, onSpeedChange}) => {
                 </div>
                 <input
                     id='speed'
+                    className='speed-slider'
                     type='range'
                     min="0.5"
                     max="1.5"
@@ -137,7 +153,11 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
             audioRef={audioRef}
             playList={playList}
             audioInitialState={initialAudioState}
-            activeUI={playerUI}
+            activeUI={stackedPlayerUI}
+            placement={stackedPlacement}
+            rootContainerProps={{
+                className: 'slow-audio-player',
+            }}
             >
                 <PlayerControlsBridge controlsRef={playerControlsRef} />
 
