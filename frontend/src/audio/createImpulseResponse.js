@@ -1,4 +1,4 @@
-export const REVERB_DURATION = 3
+export const REVERB_DURATION = 1.5
 export const REVERB_DECAY = 2.5
 
 export const getReverbMixLevels = (reverb) => {
