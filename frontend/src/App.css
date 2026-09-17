@@ -34,6 +34,21 @@ input[type="file"] {
   margin: 30px;
 }
 
+.download-button {
+  width: 180px;
+  margin: 30px;
+  min-height: 50px;
+  padding: 0.75rem 1.25rem;
+
+  box-sizing: border-box;
+  color: white;
+  background-color: #3a96d3;
+  font-size: large;
+  font-weight: bold;
+  border-radius: 30px;
+  border-width: 0px;
+}
+
 .upload-label {
   display: flex;
   justify-content: center;
@@ -50,11 +65,11 @@ input[type="file"] {
   border-radius: 30px;
 }
 
-.upload-label:active {
+.upload-label:active, .download-button:active {
   transform: scale(0.98);
 }
 
-.upload-label:hover {
+.upload-label:hover, .download-button:hover {
   cursor: pointer;
   background-color: #0965a3;
   transition: background-color 0.1s ease-in;

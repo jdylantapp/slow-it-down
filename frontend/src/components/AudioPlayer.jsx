@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import ModernAudioPlayer, {useAudioPlayerPlayback} from 'react-modern-audio-player'
 import SpeedControl from './SpeedControl'
 import ReverbControl from './ReverbControl'
-import createImpulseResponse from '../audio/createImpulseResponse'
+import createImpulseResponse, {getReverbMixLevels} from '../audio/createImpulseResponse'
+import exportAudioAsWav from '../audio/exportAudioAsWav'
 
 const stackedPlayerUI = {
     all: false,
@@ -64,6 +65,9 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
     const [speed, setSpeed] = useState(1)
     const [reverb, setReverb] = useState(0)
+
+    const [isExporting, setIsExporting] = useState(false)
+    const [exportError, setExportError] = useState('')
 
 
     const trackId = audioFile.lastModified
@@ -229,10 +233,7 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
                 return
             }
 
-            const wetAmount = Math.min(1, Math.max(0, newReverb))
-
-            const dryLevel = Math.cos(wetAmount * Math.PI * 0.5)
-            const wetLevel = Math.sin(wetAmount * Math.PI * 0.5)
+            const { dryLevel, wetLevel } = getReverbMixLevels(newReverb)
 
             const changeTime = audioContext.currentTime
 
@@ -241,6 +242,26 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
         }
         catch (error) {
             console.error('Unable to initialize reverb:', error)
+        }
+    }
+
+    const handleDownload = async () => {
+        if (isExporting) {
+            return
+        }
+
+        setIsExporting(true)
+        setExportError('')
+
+        try {
+            await exportAudioAsWav({audioFile, speed, reverb})
+        }
+        catch(error) {
+            console.error('Unable to export WAV file: ', error)
+            setExportError(error instanceof Error ? error.message : 'Unable to create the WAV file.')
+        }
+        finally {
+            setIsExporting(false)
         }
     }
 
@@ -269,6 +290,19 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
             <SpeedControl speed={speed} onSpeedChange={handleSpeedChange}/>
             <ReverbControl reverb={reverb} onReverbChange={handleReverbChange}/>
+
+            <button
+                className='download-button'
+                type='button'
+                onClick={handleDownload}
+                disabled={isExporting}
+            >
+                {isExporting ? 'Processing WAV...' : 'Download WAV'}
+            </button>
+
+            {exportError && (
+                <p className='export-error' role='alert'>{exportError}</p>
+            )}
             
         </div>
     )
