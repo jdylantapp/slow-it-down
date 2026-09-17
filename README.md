@@ -6,7 +6,7 @@ A React web app to create slowed + reverb edits for your favorite songs
 
 ## Live Demo
 
-[Slow-It-Down]()
+[Slow-It-Down](https://slow-it-down.vercel.app/)
 
 ---
 
