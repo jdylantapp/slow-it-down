@@ -12,6 +12,25 @@ const AudioUploader = ({onFileSelect}) => {
             return
         }
 
+        const extension = selectedFile.name.split('.').pop()?.toLowerCase()
+
+        const supportedExtensions = [
+            'mp3',
+            'wav',
+            'm4a',
+            'aac',
+        ]
+
+        const hasSupportedExtension = supportedExtensions.includes(extension)
+
+        const hasAudioMimeType = selectedFile.type.startsWith('audio/')
+
+        if (!hasSupportedExtension && !hasAudioMimeType) {
+            alert('Please upload an MP3, WAV, M4A, or AAC file.')
+            event.target.value = ''
+            return
+        }
+
         onFileSelect(selectedFile)
     }
 
@@ -22,7 +41,7 @@ const AudioUploader = ({onFileSelect}) => {
             <input
             id="audio-file"
             type="file"
-            accept="audio/*"
+            accept=".mp3,.wav,.m4a,.aac,audio/mpeg,audio/wav,audio/x-wav,audio/mp4,audio/aac"
             onChange={handleFileChange}
             />
         </div>
