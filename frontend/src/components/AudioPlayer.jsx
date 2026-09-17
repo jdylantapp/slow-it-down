@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ModernAudioPlayer, {useAudioPlayerPlayback} from 'react-modern-audio-player'
+import SpeedControl from './SpeedControl'
+import ReverbControl from './ReverbControl'
+import createImpulseResponse from '../audio/createImpulseResponse'
 
 const stackedPlayerUI = {
     all: false,
@@ -44,34 +47,23 @@ const PlayerControlsBridge = ({ controlsRef }) => {
     return null
 }
 
-const SpeedControl = ({speed, onSpeedChange}) => {
-    return (
-        <div className='effect-control'>
-                <div className='effect-label'>
-                    <label htmlFor='speed'>Speed: </label>
-                    <span>{speed.toFixed(2)}x</span>
-                </div>
-                <input
-                    id='speed'
-                    className='speed-slider'
-                    type='range'
-                    min="0.5"
-                    max="1.5"
-                    step="0.01"
-                    value={speed}
-                    onChange={onSpeedChange}
-                />
-        </div>
-    )
-}
-
 
 const AudioPlayer = ({ audioFile, audioUrl }) => {
 
     const audioRef = useRef(null)
     const playerControlsRef = useRef(null)
 
+    const audioContextRef = useRef(null)
+    const mediaSourceRef = useRef(null)
+    const convolverRef = useRef(null)
+    const dryGainRef = useRef(null)
+    const wetGainRef = useRef(null)
+
+    const reverbAudioElementRef = useRef(null)
+    const resumeContextHandlerRef = useRef(null)
+
     const [speed, setSpeed] = useState(1)
+    const [reverb, setReverb] = useState(0)
 
 
     const trackId = audioFile.lastModified
@@ -119,9 +111,93 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
         if ('webkitPreservesPitch' in audio) {
             audio.webkitPreservesPitch = false
-          }
+        }
 
     }, [audioUrl, speed])
+
+    useEffect(() => {
+        return () => {
+            const audio = reverbAudioElementRef.current
+            const resumeHandler = resumeContextHandlerRef.current
+            const audioContext = audioContextRef.current
+
+            if (audio && resumeHandler) {
+                audio.removeEventListener('play', resumeHandler)
+            }
+
+            mediaSourceRef.current?.disconnect()
+            convolverRef.current?.disconnect()
+            dryGainRef.current?.disconnect()
+            wetGainRef.current?.disconnect()
+
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.close()
+            }
+        }
+    }, [])
+
+
+    const initalizeReverbGraph = async () => {
+        const existingContext = audioContextRef.current
+
+        if (existingContext) {
+            if (existingContext.state === 'suspended') {
+                await existingContext.resume()
+            }
+
+            return existingContext
+        }
+
+        const audio = audioRef.current
+
+        if (!audio) {
+            return null
+        }
+
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext
+
+        const audioContext = new AudioContextClass()
+
+        const mediaSource = audioContext.createMediaElementSource(audio)
+
+        const convolver = audioContext.createConvolver()
+        const dryGain = audioContext.createGain()
+        const wetGain = audioContext.createGain()
+
+        convolver.buffer = createImpulseResponse(audioContext)
+
+        mediaSource.connect(dryGain)
+        dryGain.connect(audioContext.destination)
+
+        mediaSource.connect(convolver)
+        convolver.connect(wetGain)
+        wetGain.connect(audioContext.destination)
+
+        dryGain.gain.value = 1
+        wetGain.gain.value = 0
+
+        audioContextRef.current = audioContext
+        mediaSourceRef.current = mediaSource
+        convolverRef.current = convolver
+        dryGainRef.current = dryGain
+        wetGainRef.current = wetGain
+        reverbAudioElementRef.current = audio
+
+        const resumeContext = () => {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume()
+            }
+        }
+
+        resumeContextHandlerRef.current = resumeContext
+        audio.addEventListener('play', resumeContext)
+
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume()
+        }
+
+        return audioContext
+    }
 
 
     const handleSpeedChange = (event) => {
@@ -137,6 +213,34 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
             audio.preservesPitch = false
             audio.playbackRate = newSpeed
             audio.defaultPlaybackRate = newSpeed 
+        }
+    }
+
+
+    const handleReverbChange = async (event) => {
+        const newReverb = Number(event.target.value)
+
+        setReverb(newReverb)
+
+        try {
+            const audioContext = await initalizeReverbGraph()
+
+            if (!audioContext || !dryGainRef.current || !wetGainRef.current) {
+                return
+            }
+
+            const wetAmount = Math.min(1, Math.max(0, newReverb))
+
+            const dryLevel = Math.cos(wetAmount * Math.PI * 0.5)
+            const wetLevel = Math.sin(wetAmount * Math.PI * 0.5)
+
+            const changeTime = audioContext.currentTime
+
+            dryGainRef.current.gain.setTargetAtTime(dryLevel, changeTime, 0.01)
+            wetGainRef.current.gain.setTargetAtTime(wetLevel, changeTime, 0.01)
+        }
+        catch (error) {
+            console.error('Unable to initialize reverb:', error)
         }
     }
 
@@ -163,7 +267,8 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
             </ModernAudioPlayer>
 
-            <SpeedControl speed={speed} onSpeedChange={handleSpeedChange}/> 
+            <SpeedControl speed={speed} onSpeedChange={handleSpeedChange}/>
+            <ReverbControl reverb={reverb} onReverbChange={handleReverbChange}/>
             
         </div>
     )
