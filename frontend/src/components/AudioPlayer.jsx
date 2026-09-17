@@ -63,6 +63,8 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
     const reverbAudioElementRef = useRef(null)
     const resumeContextHandlerRef = useRef(null)
 
+    const reverbChangeIdRef = useRef(0)
+
     const [speed, setSpeed] = useState(1)
     const [reverb, setReverb] = useState(0)
 
@@ -141,7 +143,7 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
     }, [])
 
 
-    const initalizeReverbGraph = async () => {
+    const initializeReverbGraph = async () => {
         const existingContext = audioContextRef.current
 
         if (existingContext) {
@@ -223,25 +225,45 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
     const handleReverbChange = async (event) => {
         const newReverb = Number(event.target.value)
-
+    
+        const changeId = reverbChangeIdRef.current + 1
+    
+        reverbChangeIdRef.current = changeId
+    
         setReverb(newReverb)
-
+    
         try {
-            const audioContext = await initalizeReverbGraph()
-
+            const audioContext = await initializeReverbGraph()
+    
+            if (changeId !== reverbChangeIdRef.current) {
+                return
+            }
+    
             if (!audioContext || !dryGainRef.current || !wetGainRef.current) {
                 return
             }
-
+    
             const { dryLevel, wetLevel } = getReverbMixLevels(newReverb)
-
-            const changeTime = audioContext.currentTime
-
-            dryGainRef.current.gain.setTargetAtTime(dryLevel, changeTime, 0.01)
-            wetGainRef.current.gain.setTargetAtTime(wetLevel, changeTime, 0.01)
+    
+            const currentTime = audioContext.currentTime
+    
+            const updateGain = (audioParam, targetValue) => {
+                const currentValue = audioParam.value
+    
+                audioParam.cancelScheduledValues(currentTime)
+    
+                audioParam.setValueAtTime(currentValue, currentTime)
+    
+                audioParam.linearRampToValueAtTime(targetValue, currentTime + 0.05)
+            }
+    
+            updateGain(dryGainRef.current.gain, dryLevel)
+    
+            updateGain(wetGainRef.current.gain, wetLevel)
         }
+        
         catch (error) {
-            console.error('Unable to initialize reverb:', error)
+            console.error('Unable to update reverb:', error)
         }
     }
 
