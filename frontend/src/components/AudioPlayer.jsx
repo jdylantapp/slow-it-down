@@ -282,6 +282,11 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
             updateGain(dryGainRef.current.gain, dryLevel)
     
             updateGain(wetGainRef.current.gain, wetLevel)
+
+            applySpeedToAudio(
+                audioRef.current,
+                speed
+            )
         }
         
         catch (error) {
