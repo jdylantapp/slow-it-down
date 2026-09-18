@@ -15,6 +15,7 @@ A React web app to create slowed + reverb edits for your favorite songs
 * Upload a song from your device
 * Edit the song speed and reverb effect in real-time
 * Download the new song edit as a WAV file
+* ** NOTE: realtime effects do not work well on mobile, but download will include effects **
 
 ---
 
