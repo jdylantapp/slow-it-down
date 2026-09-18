@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import ModernAudioPlayer, {useAudioPlayerPlayback} from 'react-modern-audio-player'
+import ModernAudioPlayer/*, {useAudioPlayerPlayback}*/ from 'react-modern-audio-player'
 import SpeedControl from './SpeedControl'
 import ReverbControl from './ReverbControl'
 import createImpulseResponse, {getReverbMixLevels} from '../audio/createImpulseResponse'
@@ -34,7 +34,7 @@ const stackedPlayerUI = {
     },
 }
 
-const PlayerControlsBridge = ({ controlsRef }) => {
+/*const PlayerControlsBridge = ({ controlsRef }) => {
     const controls = useAudioPlayerPlayback()
   
     useEffect(() => {
@@ -46,13 +46,13 @@ const PlayerControlsBridge = ({ controlsRef }) => {
     }, [controls, controlsRef])
   
     return null
-}
+}*/
 
 
 const AudioPlayer = ({ audioFile, audioUrl }) => {
 
     const audioRef = useRef(null)
-    const playerControlsRef = useRef(null)
+    //const playerControlsRef = useRef(null)
 
     const audioContextRef = useRef(null)
     const mediaSourceRef = useRef(null)
@@ -208,7 +208,8 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
     const handleSpeedChange = (event) => {
 
-        const newSpeed = Number(event.target.value)
+        setSpeed(Number(event.target.value))
+        /*const newSpeed = Number(event.target.value)
         const playerControls = playerControlsRef.current
         const audio = audioRef.current
 
@@ -219,7 +220,7 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
             audio.preservesPitch = false
             audio.playbackRate = newSpeed
             audio.defaultPlaybackRate = newSpeed 
-        }
+        }*/
     }
 
 
@@ -306,7 +307,7 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
                 className: 'slow-audio-player',
             }}
             >
-                <PlayerControlsBridge controlsRef={playerControlsRef} />
+                {/* <PlayerControlsBridge controlsRef={playerControlsRef} /> */}
 
             </ModernAudioPlayer>
 
