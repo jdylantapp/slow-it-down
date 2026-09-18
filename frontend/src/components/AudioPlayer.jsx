@@ -162,7 +162,7 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
         const AudioContextClass = window.AudioContext || window.webkitAudioContext
 
-        const audioContext = new AudioContextClass()
+        const audioContext = new AudioContextClass({latencyHint: 'playback'})
 
         const mediaSource = audioContext.createMediaElementSource(audio)
 
