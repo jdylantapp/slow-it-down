@@ -1,4 +1,4 @@
-export const REVERB_DURATION = 1
+export const REVERB_DURATION = 3
 export const REVERB_DECAY = 2.5
 
 export const getReverbMixLevels = (reverb) => {
@@ -26,7 +26,7 @@ const createImpulseResponse = (
         return randomState / 4294967296
     }
 
-    const impulseResponse = audioContext.createBuffer(1, length, sampleRate)
+    const impulseResponse = audioContext.createBuffer(2, length, sampleRate)
 
     for (let channel = 0; channel < impulseResponse.numberOfChannels; channel += 1) {
         const channelData = impulseResponse.getChannelData(channel)
