@@ -85,7 +85,7 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
     const initialAudioState = useMemo(() => ({
         curPlayId: trackId,
-        playbackRate: 1,
+        //playbackRate: 1,
     }), [trackId])
 
 
@@ -103,9 +103,31 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
     }, [audioUrl])
 
+    const applySpeedToAudio = (
+        audio,
+        selectedSpeed
+    ) => {
+        if (!audio) {
+            return
+        }
+    
+        audio.preservesPitch = false
+    
+        if ('webkitPreservesPitch' in audio) {
+            audio.webkitPreservesPitch = false
+        }
+    
+        audio.playbackRate = selectedSpeed
+        audio.defaultPlaybackRate = selectedSpeed
+    }
 
     useEffect(() => {
-        const audio = audioRef.current
+
+        applySpeedToAudio(
+            audioRef.current,
+            speed
+        )
+        /*const audio = audioRef.current
 
         if (!audio) {
             return
@@ -117,7 +139,7 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
 
         if ('webkitPreservesPitch' in audio) {
             audio.webkitPreservesPitch = false
-        }
+        }*/
 
     }, [audioUrl, speed])
 
@@ -141,7 +163,6 @@ const AudioPlayer = ({ audioFile, audioUrl }) => {
             }
         }
     }, [])
-
 
     const initializeReverbGraph = async () => {
         const existingContext = audioContextRef.current
